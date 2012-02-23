@@ -1,0 +1,34 @@
+<!-- This is a simpler manifest that doesn't rely on mysql-service.sh. Change
+     the property values below to change the basedir/datadir options
+     as needed
+-->
+<?xml version='1.0'?>
+<!DOCTYPE service_bundle SYSTEM '/usr/share/lib/xml/dtd/service_bundle.dtd.1'>
+<service_bundle type='manifest' name='export'>
+  <service name='database/mysql' type='service' version='0'>
+    <create_default_instance enabled='true'/>
+    <single_instance/>
+    <dependency name='fs' grouping='require_all' restart_on='none' type='service'>
+      <service_fmri value='svc:/system/filesystem/local'/>
+    </dependency>
+    <dependency name='net' grouping='require_all' restart_on='none' type='service'>
+      <service_fmri value='svc:/network/loopback'/>
+    </dependency>
+    <exec_method name='start' type='method' exec='/opt/mysql55/bin/mysqld_safe --defaults-file=%{config/datadir}/%{config/cnffile} --user=mysql --basedir=%{config/basedir} --datadir=%{config/datadir} --pid-file=%{config/datadir}/%{config/pidfile}  --log-error=%{config/datadir}/%{config/logfile}' timeout_seconds='0'>
+      <method_context>
+        <method_credential user='mysql' group='mysql'/>
+      </method_context>
+    </exec_method>
+    <exec_method name='stop' type='method' exec=':kill' timeout_seconds='0'/>
+    <property_group name='config' type='application'>
+      <propval name='basedir' type='astring' value='/opt/mysql55'/>
+      <propval name='cnffile' type='astring' value='my.cnf'/>
+      <propval name='datadir' type='astring' value='/data/set/rrcdevil1/mysql/55'/>
+      <propval name='logfile' type='astring' value='mysqld.log'/>
+      <propval name='pidfile' type='astring' value='mysqld.pid'/>
+    </property_group>
+    <property_group name='startd' type='framework'>
+      <propval name='duration' type='astring' value='child'/>
+    </property_group>
+  </service>
+</service_bundle>
